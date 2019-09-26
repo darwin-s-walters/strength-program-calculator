@@ -8,10 +8,9 @@ const week3_percentages = [0.75, 0.85, 0.95];
 
 function calculate_weights(percentage_array, training_max) {
     var weight_array = [];
-    weight_array.push(percentage_array[0] * training_max);
-    weight_array.push(percentage_array[1] * training_max);
-    weight_array.push(percentage_array[2] * training_max);
-
+    weight_array.push(Math.round(percentage_array[0] * training_max/5)*5);
+    weight_array.push(Math.round(percentage_array[1] * training_max/5)*5);
+    weight_array.push(Math.round(percentage_array[2] * training_max/5)*5);
     return weight_array;
 }
 
@@ -77,13 +76,17 @@ class ProgramCalculator extends React.Component{
                         <p>{this.state.weekTwoWeights[2]} * 3+</p>
                         <p><b>Week 3 Weights: </b></p>
                         <p>{this.state.weekThreeWeights[0]} * 5</p>
-                        <p>{this.state.weekThreeWeights[1]} * 5</p>
-                        <p>{this.state.weekThreeWeights[2]} * 3</p>
+                        <p>{this.state.weekThreeWeights[1]} * 3</p>
+                        <p>{this.state.weekThreeWeights[2]} * 1</p>
                     </div>
                 )}
             </form>
         );
     }
+}
+
+class SubmitButton extends React.Component {
+
 }
 
 ReactDOM.render(

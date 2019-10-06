@@ -14,7 +14,7 @@ function calculate_weights(percentage_array, training_max) {
     return weight_array;
 }
 
-class ProgramCalculator extends React.Component{
+class ProgramForm extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
@@ -25,16 +25,34 @@ class ProgramCalculator extends React.Component{
             weekOneWeights: [],
             weekTwoWeights: [],
             weekThreeWeights: [],
+            isProgramCalculated: false,
+            exercise: '',
+            email: '',
+
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    handleChange(event) {
-        this.setState({value: event.target.value,
-                       trainingMax: parseInt(event.target.value)});
+    sendEmail() {
+        return(
+            alert("Program Sent!")
+        );
     }
+
+    handleChange(event) {
+        if ([event.target.name] == 'trainingmax') {
+            this.setState({value: event.target.value,
+                       trainingMax: parseInt(event.target.value)});
+        } else {
+            this.setState({[event.target.name]: event.target.value });
+        }
+
+        event.preventDefault();
+
+    }
+
 
     handleSubmit(event) {
         this.setState({
@@ -42,23 +60,53 @@ class ProgramCalculator extends React.Component{
             weekOneWeights: calculate_weights(week1_percentages, this.state.trainingMax),
             weekTwoWeights: calculate_weights(week2_percentages, this.state.trainingMax),
             weekThreeWeights: calculate_weights(week3_percentages, this.state.trainingMax),
+            isProgramCalculated: true
         });
         event.preventDefault();
+        this.sendEmail();
+    }
+
+    emailProgram(){
+        return(
+            alert("button is clicked")
+        );
+
     }
 
     render() {
         return(
+            <div className="ProgramCalculator">
             <form onSubmit={this.handleSubmit}>
                 <label>
-                    Training Max: 
+                    Please Enter Exercise Name:  
                     <input 
                         type="text" 
+                        name="exercise"
+                        //value={this.state.value} 
+                        onChange={this.handleChange} 
+                    />
+                </label>
+                <label>
+                    Please Enter Training Max:  
+                    <input 
+                        type="text" 
+                        name="trainingmax"
                         value={this.state.value} 
                         onChange={this.handleChange} 
                     />
                 </label>
+                <label>
+                    Please Enter Email:  
+                    <input 
+                        type="text" 
+                        name="email"
+                        //value={this.state.value} 
+                        onChange={this.handleChange} 
+                    />
+                </label>
                 <input type ="submit" value="Submit" />
-                { this.state.trainingMax > 0 && (
+                </form>
+                { this.state.isProgramCalculated === true > 0 && (
                     <div className="Warmup Weights">
                         <p>Training Max for this cycle: {this.state.trainingMax}</p>
                         <p><b>Warmup Weights: </b></p>
@@ -80,16 +128,14 @@ class ProgramCalculator extends React.Component{
                         <p>{this.state.weekThreeWeights[2]} * 1</p>
                     </div>
                 )}
-            </form>
+                </div>
         );
     }
 }
 
-class SubmitButton extends React.Component {
 
-}
 
 ReactDOM.render(
-    <ProgramCalculator />,
+    <ProgramForm />,
     document.getElementById('root')
 );

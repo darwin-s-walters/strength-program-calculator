@@ -1,0 +1,125 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description:
+  AWS Resources for static React site
+
+Parameters:
+  SiteBucketName:
+    Type: String
+    Description: The name for the bucket hosting your website
+    Default: swoletech-strength-calculator
+    AllowedPattern: ^[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$
+
+  CodeBucket:
+    Type: String
+    Default: swoletech-strength-calculator-us-east-1
+    Description: S3 bucket containing the code deployed by this template
+    AllowedPattern: ^[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$
+
+  CodeKeyPrefix:
+    Type: String
+    Default: WebApplication/1_StaticWebHosting
+    Description: Key prefix for resources referenced from the CodeBucket
+
+  Environment:
+    Type: String
+    Default: dev
+    Description: Environment to deploy
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      -
+        Label:
+          default: "Website Configuration"
+        Parameters:
+          - BucketName
+      -
+        Label:
+          default: "Advanced Configuration"
+        Parameters:
+          - CodeBucket
+          - CodeKeyPrefix
+    ParameterLabels:
+      BucketName:
+        default: "Website Bucket Name"
+
+Resources:
+  WebsiteOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: "Origin accesss identity used for CloudFront"
+
+  WebsiteBucket:
+    Properties:
+      BucketName: !Join
+                    - ''
+                    - - !Ref Environment
+                      - "-"
+                      - "swoletech-strength-calculator"
+                      - "-"
+                      - !Ref AWS::AccountId
+      WebsiteConfiguration:
+        IndexDocument: index.html
+    Type: "AWS::S3::Bucket"
+
+  WebsiteBucketPolicy:
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal: 
+              AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${WebsiteOriginAccessIdentity}"
+            Action: s3:GetObject
+            Resource: !Sub "arn:aws:s3:::${WebsiteBucket}/*"
+    Type: "AWS::S3::BucketPolicy"
+
+  WebsiteCloudFront:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt WebsiteBucket.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${WebsiteOriginAccessIdentity}"
+        Enabled: true
+        HttpVersion: 'http2'
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - GET
+          - HEAD
+          Compress: true
+          TargetOriginId: S3Origin
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponsePagePath: /index.html
+            ResponseCode: 200
+            ErrorCachingMinTTL: 30
+          - ErrorCode: 403
+            ResponsePagePath: /index.html
+            ResponseCode: 200
+            ErrorCachingMinTTL: 30
+
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt WebsiteBucket.WebsiteURL
+
+  BucketName:
+    Description: Name of bucket
+    Value: !Ref WebsiteBucket
+  
+  CloudFrontEndpointURL:
+    Description: URL used to access single page application 
+    Value: !GetAtt WebsiteCloudFront.DomainName

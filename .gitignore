@@ -1,6 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-.vscode/
-venv/
+/.vscode/*
+/venv/*
 # dependencies
 /node_modules
 /.pnp
@@ -11,7 +11,7 @@ deploy_site_to_s3.sh
 
 # production
 /build
-ses-python/packaged.yaml
+/ses-python/packaged.yaml
 # misc
 .DS_Store
 .env.local

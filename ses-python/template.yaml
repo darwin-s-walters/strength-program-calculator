@@ -9,6 +9,10 @@ Description: >
 Globals:
   Function:
     Timeout: 3
+  Api:
+    Cors:
+      AllowOrigin: "'*'"
+
 
 Resources:
   HelloWorldFunction:
@@ -18,9 +22,9 @@ Resources:
       Handler: app.lambda_handler
       Policies:
         - SESCrudPolicy:
-            IdentityName: "DESTINATION_EMAIL"
+            IdentityName: "hack.squat@outlook.com"
         - SESCrudPolicy:
-            IdentityName: "SOURCE_EMAIL"
+            IdentityName: "simplestrengthcalculator@outlook.com"
       Runtime: python3.6
       Events:
         HelloWorld:

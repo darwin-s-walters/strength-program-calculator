@@ -83,6 +83,9 @@ class ProgramForm extends React.Component{
             weekThreeWeights: calculate_weights(week3_percentages, this.state.trainingMax),
             isProgramCalculated: true
         });*/
+        this.setState({
+            isProgramCalculated: true
+        })
         event.preventDefault();
 
         var request_body = JSON.stringify(

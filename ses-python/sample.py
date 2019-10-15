@@ -3,10 +3,10 @@ import boto3
 ses_client = boto3.client('ses', region_name="us-east-1")
 
 ses_response = ses_client.send_email(
-    Source='SOURCE_EMAIL',
+    Source='simplestrengthcalculator@outlook.com',
     Destination={
         'ToAddresses': [
-            "DESTINATION_EMAIL"
+            "hack.squat@outlook.com"
         ]
     },
     Message={

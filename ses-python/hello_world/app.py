@@ -4,49 +4,57 @@ import boto3
 
 
 def lambda_handler(event, context):
-    """Sample pure Lambda function
-
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
-
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
-
-    context: object, required
-        Lambda Context runtime methods and attributes
-
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
-
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
-
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
-
     ses_client = boto3.client('ses', region_name="us-east-1")
 
+    print(event['body'])
+
+    event_body=json.loads(event['body'])
+    movement_name = event_body['movement_name']
+    training_max = event_body['training_max']
+    warmup_weights = event_body['warmup_weights']
+    week_1_weights = event_body['week_1_weights']
+    week_2_weights = event_body['week_2_weights']
+    week_3_weights = event_body['week_3_weights']
+    email_address = event_body['email_address']
+
+
+    message = f"""
+    Movement Name:  {movement_name}
+    Training Max: {str(training_max)}
+
+    Warmup Weights:
+    {str(warmup_weights[0])} * 5
+    {str(warmup_weights[1])} * 5
+    {str(warmup_weights[2])} * 3
+
+    Week 1 Weights
+    {str(week_1_weights[0])} * 5
+    {str(week_1_weights[1])} * 5
+    {str(week_1_weights[2])} * 5+
+
+    Week 2 Weights
+    {str(week_2_weights[0])} * 3
+    {str(week_2_weights[1])} * 3
+    {str(week_2_weights[2])} * 3+
+
+    Week 3 Weights
+    {str(week_3_weights[0])} * 5
+    {str(week_3_weights[1])} * 3
+    {str(week_3_weights[2])} * 1+
+
+    """
     ses_response = ses_client.send_email(
-        Source='SOURCE_EMAIL',
+        Source='hack.squat@outlook.com',
         Destination={
             'ToAddresses': [
-                "DESTINATION_EMAIL"
+                email_address
             ]
         },
         Message={
             'Body': {
                 'Text': {
                     'Charset': 'UTF-8',
-                    'Data': '405*50'
+                    'Data': message
                 }
             },
             'Subject': {

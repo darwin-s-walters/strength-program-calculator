@@ -5,6 +5,7 @@ const warmup_percentages = [0.40, 0.50, 0.60];
 const week1_percentages = [0.65, 0.75, 0.85];
 const week2_percentages = [0.70, 0.80, 0.90];
 const week3_percentages = [0.75, 0.85, 0.95];
+const email_api = "https://jwmt3d1om2.execute-api.us-east-1.amazonaws.com/Prod/hello"
 
 function calculate_weights(percentage_array, training_max) {
     var weight_array = [];
@@ -26,8 +27,8 @@ class ProgramForm extends React.Component{
             weekTwoWeights: [],
             weekThreeWeights: [],
             isProgramCalculated: false,
-            exercise: '',
-            email: '',
+            movementName: '',
+            emailAddress: '',
 
         };
 
@@ -35,26 +36,32 @@ class ProgramForm extends React.Component{
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    sendEmail() {
+    sendEmail(email_api, request_body) {
+        var api_response = fetch(email_api, {
+            method: 'POST',
+            body: request_body,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+
+        });
+
+        console.log(api_response);
+
         return(
             alert("Program Sent!")
         );
     }
 
     handleChange(event) {
-        if ([event.target.name] == 'trainingmax') {
-            this.setState({value: event.target.value,
-                       trainingMax: parseInt(event.target.value)});
-        } else {
-            this.setState({[event.target.name]: event.target.value });
-        }
-
-        event.preventDefault();
-
-    }
-
-
-    handleSubmit(event) {
+        //if ([event.target.name] == 'trainingmax') {
+        //    this.setState({value: event.target.value,
+        //               trainingMax: parseInt(event.target.value)});
+        //} else {
+        //    this.setState({[event.target.name]: event.target.value });
+        //}
+        
+        this.setState({[event.target.name]: event.target.value });
         this.setState({
             warmupWeights: calculate_weights(warmup_percentages, this.state.trainingMax),
             weekOneWeights: calculate_weights(week1_percentages, this.state.trainingMax),
@@ -62,11 +69,39 @@ class ProgramForm extends React.Component{
             weekThreeWeights: calculate_weights(week3_percentages, this.state.trainingMax),
             isProgramCalculated: true
         });
+
         event.preventDefault();
-        this.sendEmail();
+
+    }
+
+
+    handleSubmit(event) {
+        /*this.setState({
+            warmupWeights: calculate_weights(warmup_percentages, this.state.trainingMax),
+            weekOneWeights: calculate_weights(week1_percentages, this.state.trainingMax),
+            weekTwoWeights: calculate_weights(week2_percentages, this.state.trainingMax),
+            weekThreeWeights: calculate_weights(week3_percentages, this.state.trainingMax),
+            isProgramCalculated: true
+        });*/
+        event.preventDefault();
+
+        var request_body = JSON.stringify(
+            {
+                training_max: this.state.trainingMax,
+                movement_name: this.state.movementName,
+                warmup_weights: this.state.warmupWeights,
+                week_1_weights: this.state.weekOneWeights,
+                week_2_weights: this.state.weekTwoWeights,
+                week_3_weights: this.state.weekThreeWeights,
+                email_address: this.state.emailAddress
+            }
+        );
+
+        this.sendEmail(email_api, request_body);
     }
 
     emailProgram(){
+        fetch()
         return(
             alert("button is clicked")
         );
@@ -81,7 +116,7 @@ class ProgramForm extends React.Component{
                     Please Enter Exercise Name:  
                     <input 
                         type="text" 
-                        name="exercise"
+                        name="movementName"
                         //value={this.state.value} 
                         onChange={this.handleChange} 
                     />
@@ -90,8 +125,8 @@ class ProgramForm extends React.Component{
                     Please Enter Training Max:  
                     <input 
                         type="text" 
-                        name="trainingmax"
-                        value={this.state.value} 
+                        name="trainingMax"
+                        //value={this.state.value} 
                         onChange={this.handleChange} 
                     />
                 </label>
@@ -99,7 +134,7 @@ class ProgramForm extends React.Component{
                     Please Enter Email:  
                     <input 
                         type="text" 
-                        name="email"
+                        name="emailAddress"
                         //value={this.state.value} 
                         onChange={this.handleChange} 
                     />
